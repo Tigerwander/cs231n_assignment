@@ -113,8 +113,8 @@ class KNearestNeighbor(object):
     """
     num_test = X.shape[0]
     num_train = self.X_train.shape[0]
-    dists = np.sqrt((X**2).sum(axis=1, keepdims=True) + (self.X_train**2).sum(axis=1) - 2 * X.dot(self.X_train.T))
-    #dists = np.sum(self.X_train ** 2, axis=1) + np.sum(X ** 2, axis=1)[:, np.newaxis] - 2 * np.dot(X, self.X_train.T)
+    #dists = np.sqrt((X**2).sum(axis=1, keepdims=True) + (self.X_train**2).sum(axis=1) - 2 * X.dot(self.X_train.T))
+    dists = np.sum(self.X_train ** 2, axis=1) + np.sum(X ** 2, axis=1)[:, np.newaxis] - 2 * np.dot(X, self.X_train.T)
     #########################################################################
     # TODO:                                                                 #
     # Compute the l2 distance between all test points and all training      #
