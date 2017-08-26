@@ -39,14 +39,14 @@ def svm_loss_naive(W, X, y, reg):
         dW[:, j] += X[i]
         loss += margin
     dW[:, y[i]] -= diff_count * X[i]
+
+  dW /= num_train
   dW += reg * W
 
-  # Right now the loss is a sum over all training examples, but we want it
-  # to be an average instead so we divide by num_train.
   loss /= num_train
-
-  # Add regularization to the loss.
   loss += 0.5 * reg * np.sum(W * W)
+
+  return loss, dW
 
   #############################################################################
   # TODO:                                                                     #
@@ -56,10 +56,6 @@ def svm_loss_naive(W, X, y, reg):
   # loss is being computed. As a result you may need to modify some of the    #
   # code above to compute the gradient.                                       #
   #############################################################################
-
-
-  return loss, dW
-
 
 def svm_loss_vectorized(W, X, y, reg):
   """
@@ -84,13 +80,12 @@ def svm_loss_vectorized(W, X, y, reg):
   delta = 1.0
 
   scores = X.dot(W)
-  true_class_scores = scores[np.arange(num_traning), y]
-  margin = max(0, scores - true_class_scores[:, np.newaxis] + delta)
+  true_class_scores = scores[np.arange(num_training), y]
+  margin = np.maximum(0, scores - true_class_scores[:, np.newaxis] + delta)
   margin[np.arange(num_training), y] = 0
-  loss += np.sum(margin)
-
+  loss = np.sum(margin)
+  loss /= num_training
   loss += 0.5 * reg * np.sum(W * W)
-
 
   #############################################################################
   # TODO:                                                                     #
@@ -108,12 +103,11 @@ def svm_loss_vectorized(W, X, y, reg):
 
   X_mask = np.zeros(margin.shape)
   X_mask[margin > 0] = 1
-  diff_count = np.sum(margin, axis=1)
-  X_mask[np.arange(num_traning), y] = -diff_count
+  diff_count = np.sum(X_mask, axis=1)
+  X_mask[np.arange(num_training), y] = -diff_count
 
-  dW += X.T.dot(X_mask)
-
+  dW = X.T.dot(X_mask)
+  dW /= num_training
   dW += reg * W
-
 
   return loss, dW

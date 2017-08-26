@@ -11,7 +11,7 @@ class LinearClassifier(object):
   def __init__(self):
     self.W = None
 
-  def train(self, X, y, learning_rate=1e-3, reg=1e-5, num_iters=100,
+  def train(self, X, y, learning_rate=1e-3, reg=1e-3, num_iters=100,
             batch_size=200, verbose=False):
     """
     Train this linear classifier using stochastic gradient descent.
@@ -39,8 +39,10 @@ class LinearClassifier(object):
     # Run stochastic gradient descent to optimize W
     loss_history = []
     for it in xrange(num_iters):
+      '''
       X_batch = None
       y_batch = None
+      '''
 
       #########################################################################
       # TODO:                                                                 #
@@ -54,8 +56,8 @@ class LinearClassifier(object):
       # replacement is faster than sampling without replacement.              #
       #########################################################################
       #pass
-      indices = np.random.choice(batch_size)
-      X_batch = X[indices, :]
+      indices = np.random.choice(np.arange(num_train), batch_size)
+      X_batch = X[indices]
       y_batch = y[indices]
       #########################################################################
       #                       END OF YOUR CODE                                #
@@ -77,7 +79,9 @@ class LinearClassifier(object):
       #########################################################################
 
       if verbose and it % 100 == 0:
-        print('iteration %d / %d: loss %f' % (it, num_iters, loss))
+        pred = self.predict(X_batch)
+        accuracy = np.mean(pred == y_batch)
+        print('iteration %d / %d: loss %f, accuracy %f' % (it, num_iters, loss, accuracy))
 
     return loss_history
 
@@ -131,6 +135,7 @@ class LinearSVM(LinearClassifier):
 
   def loss(self, X_batch, y_batch, reg):
     return svm_loss_vectorized(self.W, X_batch, y_batch, reg)
+    #return svm_loss_naive(self.W, X_batch, y_batch, reg)
 
 
 class Softmax(LinearClassifier):
