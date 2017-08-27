@@ -76,36 +76,68 @@ class TwoLayerNet(object):
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    pass
+    mul1 = X.dot(W1)
+    hidden1_input = mul1 + b1
+    hidden1_output = np.maximum(hidden1_input, 0)
+
+    mul2 = hidden1_output.dot(W2)
+    hidden2_input = mul2 + b2
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
-    
+
     # If the targets are not given then jump out, we're done
     if y is None:
       return scores
 
     # Compute the loss
-    loss = None
     #############################################################################
     # TODO: Finish the forward pass, and compute the loss. This should include  #
     # both the data loss and L2 regularization for W1 and W2. Store the result  #
     # in the variable loss, which should be a scalar. Use the Softmax           #
     # classifier loss.                                                          #
     #############################################################################
-    pass
+    scores -= np.max(scores, axis=1, keepdims=True)
+    scores = np.exp(scores)
+    scores /= np.sum(scores, axis=1, keepdims=True)
+    loss = np.sum(-np.log(scores[np.arange(N), y]))
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
 
     # Backward pass: compute gradients
-    grads = {}
     #############################################################################
     # TODO: Compute the backward pass, computing the derivatives of the weights #
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    pass
+    grads = {}
+    dloss = 1
+
+    ind = np.zeros_like(scores)
+    ind[np.arange(N), y] = 1
+    dscores = scores - ind
+
+    dhidden2_input = dscores
+    db2 = dhidden2_input
+    dmul2 = dhidden2_input
+
+    dW2 = dhidden_output2.T.dot(dmul2)
+    dhidden1_output = dmul2.dot(W2.T)
+
+    dhidden1_input = np.maximum(dhidden1_output, 0)
+    dmul1 = dhidden1_input
+    db1 = dhidden1_input
+
+    dW1 = X.T.dot(dmul1)
+    dX = dmul1.dot(W1.T)
+
+    grads['dW2'] = dW2
+    grads['db2'] = db2
+    grads['dW1'] = dW1
+    grads['db1'] = db1
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -149,7 +181,9 @@ class TwoLayerNet(object):
       # TODO: Create a random minibatch of training data and labels, storing  #
       # them in X_batch and y_batch respectively.                             #
       #########################################################################
-      pass
+      indices = np.random.choice(np.arange(num_train), batch_size)
+      X_batch = X[indices]
+      y_batch = y[indices]
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
@@ -164,7 +198,10 @@ class TwoLayerNet(object):
       # using stochastic gradient descent. You'll need to use the gradients   #
       # stored in the grads dictionary defined above.                         #
       #########################################################################
-      pass
+      self.Params['W1'] -= learning_rate * grads['dW1']
+      self.Params['b1'] -= learning_rate * grads['db1']
+      self.Params['W2'] -= learning_rate * grads['dW2']
+      self.Params['b2'] -= learning_rate * grads['db2']
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
@@ -209,7 +246,10 @@ class TwoLayerNet(object):
     ###########################################################################
     # TODO: Implement this function; it should be VERY simple!                #
     ###########################################################################
-    pass
+    hidden1_input = X.dot(self.Params['W1']) + self.Params['b1']
+    relu_score = np.maximum(hidden1_input, 0)
+    hidden2_input = relu_score.dot(self.Params['W2']) + self.Params['b2']
+    y_pred = np.max(hidden2_input, axis=1, keepdims=True)
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################
