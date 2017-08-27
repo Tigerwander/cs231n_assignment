@@ -43,6 +43,23 @@ def test_softmax(data):
     accuracy = np.mean(predict == data['y_test'])
     print('softmax predict accuracy {}'.format(accuracy))
 
+def test_nn(data):
+    nn = TwoLayerNet()
+    num_training = data['X_train'].shape[0]
+    X_train = data['X_train'].reshape(num_training, 32 * 32 * 3)
+    y_train = data['y_train']
+
+    X_val = data['X_val'].reshape(num_training, 32 * 32 * 3)
+    y_val = data['y_val']
+
+    print('training...')
+    nn.train(X_train, y_train, X_val, y_val, verbose=True)
+
+    X_test = data['X_test'].reshape(num_test, 32 * 32 * 3)
+    y_test = data['y_test']
+    predict = nn.predict(X_test)
+    accuracy = np.mean(predict == y_test)
+    print('softmax predict accuracy {}'.format(accuracy))
 
 
 if __name__ == '__main__':
@@ -50,4 +67,5 @@ if __name__ == '__main__':
 
     #test_knn(data)
     #test_svm(data)
-    test_softmax(data)
+    #test_softmax(data)
+    test_nn(data)
