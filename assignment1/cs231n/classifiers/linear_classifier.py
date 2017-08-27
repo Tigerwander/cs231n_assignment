@@ -73,12 +73,13 @@ class LinearClassifier(object):
       # Update the weights using the gradient and the learning rate.          #
       #########################################################################
       #pass
-      self.W = self.W -learning_rate * grad
+      self.W = self.W - learning_rate * grad
       #########################################################################
       #                       END OF YOUR CODE                                #
       #########################################################################
 
-      if verbose and it % 100 == 0:
+      #if verbose and it % 100 == 0:
+      if verbose:
         pred = self.predict(X_batch)
         accuracy = np.mean(pred == y_batch)
         print('iteration %d / %d: loss %f, accuracy %f' % (it, num_iters, loss, accuracy))
@@ -142,5 +143,6 @@ class Softmax(LinearClassifier):
   """ A subclass that uses the Softmax + Cross-entropy loss function """
 
   def loss(self, X_batch, y_batch, reg):
-    return softmax_loss_vectorized(self.W, X_batch, y_batch, reg)
+    #return softmax_loss_vectorized(self.W, X_batch, y_batch, reg)
+    return softmax_loss_naive(self.W, X_batch, y_batch, reg)
 
