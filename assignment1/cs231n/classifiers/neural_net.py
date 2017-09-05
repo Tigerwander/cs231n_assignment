@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from past.builtins import xrange
 
 class TwoLayerNet(object):
@@ -81,7 +81,7 @@ class TwoLayerNet(object):
     hidden1_output = np.maximum(hidden1_input, 0)
 
     mul2 = hidden1_output.dot(W2)
-    hidden2_input = mul2 + b2
+    output = mul2 + b2
 
     #############################################################################
     #                              END OF YOUR CODE                             #
@@ -98,10 +98,10 @@ class TwoLayerNet(object):
     # in the variable loss, which should be a scalar. Use the Softmax           #
     # classifier loss.                                                          #
     #############################################################################
-    scores -= np.max(scores, axis=1, keepdims=True)
-    scores = np.exp(scores)
+    output -= np.max(output, axis=1, keepdims=True)
+    scores = np.exp(output)
     scores /= np.sum(scores, axis=1, keepdims=True)
-    loss = np.sum(-np.log(scores[np.arange(N), y]))
+    loss = np.sum(-np.log(scores[np.arange(N), y])) / scores.shape[0]
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -117,18 +117,19 @@ class TwoLayerNet(object):
 
     ind = np.zeros_like(scores)
     ind[np.arange(N), y] = 1
-    dscores = scores - ind
 
-    dhidden2_input = dscores
-    db2 = dhidden2_input
-    dmul2 = dhidden2_input
+    dscores = 1
+    doutput = (scores - ind) / scores.shape[0]
 
-    dW2 = dhidden_output2.T.dot(dmul2)
+    db2 = np.sum(doutput, axis=0)
+    dmul2 = doutput
+
+    dW2 = hidden1_output.T.dot(dmul2)
     dhidden1_output = dmul2.dot(W2.T)
 
     dhidden1_input = np.maximum(dhidden1_output, 0)
     dmul1 = dhidden1_input
-    db1 = dhidden1_input
+    db1 = np.sum(dhidden1_input, axis=0)
 
     dW1 = X.T.dot(dmul1)
     dX = dmul1.dot(W1.T)
@@ -198,10 +199,10 @@ class TwoLayerNet(object):
       # using stochastic gradient descent. You'll need to use the gradients   #
       # stored in the grads dictionary defined above.                         #
       #########################################################################
-      self.Params['W1'] -= learning_rate * grads['dW1']
-      self.Params['b1'] -= learning_rate * grads['db1']
-      self.Params['W2'] -= learning_rate * grads['dW2']
-      self.Params['b2'] -= learning_rate * grads['db2']
+      self.params['W1'] -= learning_rate * grads['dW1']
+      self.params['b1'] -= learning_rate * grads['db1']
+      self.params['W2'] -= learning_rate * grads['dW2']
+      self.params['b2'] -= learning_rate * grads['db2']
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
@@ -246,10 +247,10 @@ class TwoLayerNet(object):
     ###########################################################################
     # TODO: Implement this function; it should be VERY simple!                #
     ###########################################################################
-    hidden1_input = X.dot(self.Params['W1']) + self.Params['b1']
+    hidden1_input = X.dot(self.params['W1']) + self.params['b1']
     relu_score = np.maximum(hidden1_input, 0)
-    hidden2_input = relu_score.dot(self.Params['W2']) + self.Params['b2']
-    y_pred = np.max(hidden2_input, axis=1, keepdims=True)
+    hidden2_input = relu_score.dot(self.params['W2']) + self.params['b2']
+    y_pred = np.argmax(hidden2_input, axis=1)
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################

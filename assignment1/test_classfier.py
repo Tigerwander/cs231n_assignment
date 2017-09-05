@@ -1,6 +1,7 @@
 from cs231n.classifiers import KNearestNeighbor
 from cs231n.classifiers import LinearSVM
 from cs231n.classifiers import Softmax
+from cs231n.classifiers.neural_net import TwoLayerNet
 from cs231n.data_utils import get_CIFAR10_data
 import numpy as np
 
@@ -44,17 +45,19 @@ def test_softmax(data):
     print('softmax predict accuracy {}'.format(accuracy))
 
 def test_nn(data):
-    nn = TwoLayerNet()
+    nn = TwoLayerNet(32 * 32 * 3, 1000, 10)
     num_training = data['X_train'].shape[0]
     X_train = data['X_train'].reshape(num_training, 32 * 32 * 3)
     y_train = data['y_train']
 
-    X_val = data['X_val'].reshape(num_training, 32 * 32 * 3)
+    num_val = data['X_val'].shape[0]
+    X_val = data['X_val'].reshape(num_val, 32 * 32 * 3)
     y_val = data['y_val']
 
     print('training...')
-    nn.train(X_train, y_train, X_val, y_val, verbose=True)
+    nn.train(X_train, y_train, X_val, y_val, verbose=True, num_iters=1000)
 
+    num_test = data['X_test'].shape[0]
     X_test = data['X_test'].reshape(num_test, 32 * 32 * 3)
     y_test = data['y_test']
     predict = nn.predict(X_test)
